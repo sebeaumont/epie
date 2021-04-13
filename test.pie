@@ -1,20 +1,11 @@
+#lang pie
+
 (the Atom 'foo)
 
-(Pi ((a 3) (b 2))
-  2
-  3)
+(claim mu Atom)
+(define mu 'an-atom)
 
-(Sigma ((a U))
-  )
+(claim a (-> Nat Nat))
+(define a (lambda (x) (add1 x)))
 
-(claim Atom)
-
-'AnAtom
-
-(ind-Absurd )
-
-(define a
-  (lambda (x)
-    (add1 x)))
-
-(the AType 'foo)
+(a 3)

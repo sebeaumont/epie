@@ -1,0 +1,4 @@
+* an emacs mode for pie
+
+Simple mode for the [[http://thelittletyper.com][Little Typer's]] Pie language, able to talk to an
+inferior REPL spun by [[https://github.com/david-christiansen/pie-hs][pie-hs]].

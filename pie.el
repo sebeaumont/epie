@@ -282,8 +282,15 @@ Commands:
 (add-to-list 'display-buffer-alist
              `(,(regexp-quote pie--out-buffer)
                (display-buffer-below-selected)
-               (window-height . 20)
+               (window-height . 0.33)
                (window-min-height . 10)))
+
+(defun pie-pop-to-output ()
+  "Move to the pie-hs output buffer."
+  (interactive)
+  (when (derived-mode-p 'pie-mode)
+    (setq pie--last-pie-buffer (current-buffer)))
+  (pop-to-buffer (pie--out-buffer)))
 
 (defun pie-back-to-buffer ()
   "Return to the last Pie code buffer."
@@ -417,9 +424,8 @@ CODE is the code that S causes to evaluate."
   (set-process-sentinel (get-buffer-process (current-buffer)) #'pie--sentinel)
   (comint-read-input-ring t))
 
-(define-key pie-mode-map "\C-cz" #'pie-run)
 (define-key pie-mode-map "\C-c\C-z" #'pie-run)
-(define-key pie-mode-map "\C-cl" #'pie-load-buffer)
+(define-key pie-mode-map "\C-c\C-o" #'pie-pop-to-output)
 (define-key pie-mode-map "\C-c\C-l" #'pie-load-buffer)
 (define-key pie-mode-map "\C-c\C-e" #'pie-eval-last-sexp)
 (define-key pie-mode-map "\C-x\C-e" #'pie-eval-last-sexp)
@@ -428,10 +434,11 @@ CODE is the code that S causes to evaluate."
 
 (define-key pie-repl-mode-map "\M-p" #'comint-previous-matching-input-from-input)
 (define-key pie-repl-mode-map "\M-n" #'comint-next-matching-input-from-input)
-(define-key pie-repl-mode-map "\C-cz" #'pie-back-to-buffer)
 (define-key pie-repl-mode-map "\C-c\C-z" #'pie-back-to-buffer)
 (define-key pie-repl-mode-map "\C-c\C-v" #'pie-verbose-output)
 (define-key pie-repl-mode-map "\C-c\C-V" #'pie-concise-output)
+
+(define-key pie-output-mode-map "\C-c\C-o" #'pie-back-to-buffer)
 
 ;;;###autoload
 (defun pie-run ()

@@ -100,6 +100,9 @@
 (defface pie-function '((t :inherit font-lock-function-name-face))
   "Face for functions.")
 
+(defface pie-annotation '((t :inherit font-lock-comment-face))
+  "Face for pie-hs annotations.")
+
 
 ;; Mode
 
@@ -262,13 +265,25 @@ Commands:
   (pop-to-buffer (pie--repl-buffer)))
 
 (defvar pie--out-buffer "*pie-output*")
+(defvar pie--out-font-lock-keywords
+  (cons '("^[^:]+\\(: .+\\)$" (1 'pie-annotation)) pie-font-lock-keywords))
+
+(define-derived-mode pie-output-mode pie-mode "pie-output"
+  "Mode to display pie-hs output."
+  (setq-local font-lock-defaults '(pie--out-font-lock-keywords)))
 
 (defun pie--out-buffer ()
   "Access to the raw pie-hs output."
   (when (not (get-buffer pie--out-buffer))
     (with-current-buffer (get-buffer-create pie--out-buffer)
-      (pie-mode)))
+      (pie-output-mode)))
   (get-buffer pie--out-buffer))
+
+(add-to-list 'display-buffer-alist
+             `(,(regexp-quote pie--out-buffer)
+               (display-buffer-below-selected)
+               (window-height . 20)
+               (window-min-height . 10)))
 
 (defun pie-back-to-buffer ()
   "Return to the last Pie code buffer."
@@ -276,58 +291,91 @@ Commands:
   (when (get-buffer pie--last-pie-buffer)
     (pop-to-buffer pie--last-pie-buffer)))
 
-(defun pie--send-command (cmd)
-  "Sends CMD to the Pie REPL and collects the result."
+(defconst pie--input-loc-rx
+  "^[^:\n]+:\\([0-9]+\\)\\.\\([0-9]+\\)-\\([0-9]+\\)\\.\\([0-9]+\\)")
+
+(defun pie--extract-subcmd (lines l0 c0 l1 c1)
+  "Extract substring from LINES with lines/columns L0, C0, L1, C1."
+  (let* ((l0s (elt lines (1- l0)))
+         (l0s (if (= l0 l1)
+                  (substring l0s (1- c0) (1- c1))
+                (substring l0s (1- c0))))
+         (l1s (when (not (= l0 l1))
+                (substring (elt lines (1- l1)) 0 (1- c1)))))
+    (if l1s (concat l0s "\n" l1s) l0s)))
+
+(defun pie--parse-cmd-output (cmd)
+  "Parse output of CMD."
+  (let ((clines (split-string cmd "\n"))
+        (last-line 0))
+    (goto-char (point-min))
+    (while (re-search-forward pie--input-loc-rx nil t)
+      (let ((l0 (string-to-number (match-string 1)))
+            (c0 (string-to-number (match-string 2)))
+            (l1 (string-to-number (match-string 3)))
+            (c1 (string-to-number (match-string 4))))
+        (replace-match "")
+        (when (not (= last-line l0))
+          (insert (format "\n;; line %s\n" l0)))
+        (setq last-line l0)
+        (insert (pie--extract-subcmd clines l0 c0 l1 c1))
+        (forward-line)))))
+
+(defun pie--parse-wait-output (buf proc)
+  "Wait for output of PROC to cease in BUF."
+  (with-current-buffer buf
+    (while (and (null comint-redirect-completed) (accept-process-output proc)))))
+
+(defun pie--send-command (cmd &optional code)
+  "Sends CMD to the Pie REPL and collects the result.
+CODE is the evaluated code, when not directly given by CMD."
   (when-let ((repl (pie--repl-buffer)))
     (let ((proc (get-buffer-process repl))
           (out (pie--out-buffer)))
       (with-current-buffer out
+        (read-only-mode -1)
         (erase-buffer)
         (comint-redirect-send-command-to-process cmd out proc nil t)
-        ;; Wait for the process to complete
-        (set-buffer repl)
-        (while (and (null comint-redirect-completed)
-		    (accept-process-output proc)))
-        (set-buffer out)
-        (string-trim (buffer-string))))))
+        (pie--parse-wait-output repl proc)
+        (pie--parse-cmd-output (or code cmd))
+        (goto-char (point-min))
+        (read-only-mode 1)))))
 
-(defun pie-load-buffer (&optional buffer)
-  "Send the contents of a given buffer to the Pie repl, resetting it."
-  (interactive)
-  (let ((bn (buffer-file-name (or buffer (current-buffer)))))
-    (pop-to-buffer pie--repl-buffer)
-    (comint-simple-send nil (format ":load %s" bn))))
-
-(defun pie--eval (s)
-  "Asks the REPL to eval the string or form S."
+(defun pie--eval (s &optional code)
+  "Asks the REPL to eval the string or form S.
+CODE is the code that S causes to evaluate."
   (when s
     (let* ((s (if (stringp s) s (format "%S" s)))
            (s (replace-regexp-in-string "\\(;.*\\)?\n" " " s))
-           (res (pie--send-command (format "%s" s))))
-      (message "=> %s" res))))
+           (s (replace-regexp-in-string " +" " " s)))
+      (pie--send-command (format "%s" s) code)
+      (display-buffer (pie--out-buffer)))))
 
-(defun pie-eval-last-sexp (&optional goto-repl)
-  "Sends to the Pie repl sexp before point for evaluation.
-
-With prefix, jump to the REPL afterwards."
-  (interactive "P")
+(defun pie-eval-last-sexp ()
+  "Sends to the Pie repl sexp before point for evaluation."
+  (interactive)
   (save-current-buffer
     (let ((p (point)))
       (save-excursion
         (backward-sexp)
-        (pie--eval (buffer-substring-no-properties (point) p)))))
-  (when goto-repl (pie-pop-to-repl)))
+        (pie--eval (buffer-substring-no-properties (point) p))))))
 
-(defun pie-eval-region (&optional goto-repl)
+(defun pie-eval-region ()
   "Sends to the Pie repl sexp before point for evaluation."
-  (interactive "P")
+  (interactive)
   (let ((b (region-beginning))
         (e (region-end)))
-    (pie--eval (buffer-substring-no-properties b e)))
-  (when goto-repl (pie-pop-to-repl)))
+    (pie--eval (buffer-substring-no-properties b e))))
 
-(defun pie--sentinel (proc event)
-  "Prints a farewell when EVENT says PROC ended."
+(defun pie-load-buffer (&optional buffer)
+  "Send the contents of a given BUFFER to the Pie repl, resetting it."
+  (interactive)
+  (let ((buffer (or buffer (current-buffer))))
+    (pie--eval (format ":load %s" (buffer-file-name buffer))
+               (with-current-buffer buffer (buffer-string)))))
+
+(defun pie--sentinel (proc _event)
+  "Prints a farewell when PROC ended."
   (let ((pb (process-buffer proc)))
     (when (buffer-live-p pb)
       (with-current-buffer pb

@@ -76,27 +76,29 @@
 
 (require 'lisp-mode)
 (require 'subr-x)
+(require 'comint)
 
 
 ;; Customization
 
 (defgroup pie nil
-  "Options for pie.")
+  "Options for pie."
+  :group 'programming)
 
 (defface pie-definition '((t :inherit bold))
   "Face for defining forms (the, claim, define).")
 
 (defface pie-builtin '((t :inherit font-lock-builtin-face))
-  "Face for built-ins")
+  "Face for built-ins.")
 
 (defface pie-type '((t :inherit italic))
-  "Face for type names")
+  "Face for type names.")
 
 (defface pie-atom '((t :inherit font-lock-keyword-face))
-  "Face for atoms")
+  "Face for atoms.")
 
 (defface pie-function '((t :inherit font-lock-function-name-face))
-  "Face for functions")
+  "Face for functions.")
 
 
 ;; Mode
@@ -167,6 +169,7 @@
         'string-lessp))
 
 (defun pie-complete-symbol-at-point ()
+  "The CAPF function."
   (let* ((beg (save-excursion (skip-syntax-backward "^-()>") (point)))
          (end (+ beg (length (thing-at-point 'symbol)))))
     (when (> end beg)
@@ -246,7 +249,9 @@ Commands:
 (defvar pie--last-pie-buffer nil)
 
 (defvar pie--repl-buffer "*pie*")
-(defun pie--repl-buffer () (get-buffer pie--repl-buffer))
+(defun pie--repl-buffer ()
+  "Grabs repl's buffer, checdock police."
+  (get-buffer pie--repl-buffer))
 
 (defun pie-pop-to-repl ()
   "Pop to the active Pie REPL."
@@ -254,6 +259,7 @@ Commands:
   (pop-to-buffer (pie--repl-buffer)))
 
 (defvar pie--out-buffer "*pie-output*")
+
 (defun pie--out-buffer ()
   "Access to the raw pie-hs output."
   (when (not (get-buffer pie--out-buffer))
@@ -329,7 +335,8 @@ With prefix, jump to the REPL afterwards."
 (define-derived-mode pie-repl-mode comint-mode "Pie REPL"
   "A very simple comint-based mode to run pie-hs."
   (setq comint-prompt-read-only t
-        comint-prompt-regexp "^.> "
+        comint-use-prompt-regexp t
+        comint-prompt-regexp (regexp-quote "Π> ")
         comint-input-ring-file-name
         (expand-file-name "~/.emacs.d/cache/pie.history")
         comint-input-ignoredups t
@@ -363,6 +370,8 @@ With prefix, jump to the REPL afterwards."
   (pop-to-buffer (make-comint "pie" pie-path))
   (unless (derived-mode-p 'pie-repl-mode)
     (pie-repl-mode)))
+
+(defvar company-global-modes)
 
 (with-eval-after-load "company"
   (when (listp company-global-modes)

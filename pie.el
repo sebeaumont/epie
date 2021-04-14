@@ -360,12 +360,14 @@ CODE is the code that S causes to evaluate."
         (backward-sexp)
         (pie--eval (buffer-substring-no-properties (point) p))))))
 
-(defun pie-eval-region ()
-  "Sends to the Pie repl sexp before point for evaluation."
-  (interactive)
-  (let ((b (region-beginning))
-        (e (region-end)))
-    (pie--eval (buffer-substring-no-properties b e))))
+;; Needs more work: pie-hs doesn't like more than one form in a single line
+;; so we'd need aggregating multiple evaluations
+;; (defun pie-eval-region ()
+;;   "Sends to the Pie repl sexp before point for evaluation."
+;;   (interactive)
+;;   (let ((b (region-beginning))
+;;         (e (region-end)))
+;;     (pie--eval (buffer-substring-no-properties b e))))
 
 (defun pie-load-buffer (&optional buffer)
   "Send the contents of a given BUFFER to the Pie repl, resetting it."
@@ -405,7 +407,6 @@ CODE is the code that S causes to evaluate."
 (define-key pie-mode-map "\C-c\C-l" #'pie-load-buffer)
 (define-key pie-mode-map "\C-c\C-e" #'pie-eval-last-sexp)
 (define-key pie-mode-map "\C-x\C-e" #'pie-eval-last-sexp)
-(define-key pie-mode-map "\C-c\C-r" #'pie-eval-region)
 
 (define-key pie-repl-mode-map "\M-p" 'comint-previous-matching-input-from-input)
 (define-key pie-repl-mode-map "\M-n" 'comint-next-matching-input-from-input)

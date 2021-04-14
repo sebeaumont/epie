@@ -202,12 +202,15 @@
     smap)
   "Keymap for WhizzML mode.")
 
+(defconst pie--one-indent-forms
+  '(Pi Sigma which-Nat iter-Nat rec-Nat ind-Nat rec-List ind-List)
+  "Internal constant.")
+
 (defun pie--indent (&rest args)
-  (put 'Pi 'lisp-indent-function 1)
-  (put 'Sigma 'lisp-indent-function 1)
+  "Indenting function, based on Lisp's indent function called with ARGS."
+  (dolist (f pie--one-indent-forms) (put f 'lisp-indent-function 1))
   (prog1 (apply #'lisp-indent-function args)
-    (put 'Pi 'lisp-indent-function nil)
-    (put 'Sigma 'lisp-indent-function nil)))
+    (dolist (f pie--one-indent-forms) (put f 'lisp-indent-function nil))))
 
 ;;;###autoload
 (define-derived-mode pie-mode prog-mode "Pie"

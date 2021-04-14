@@ -376,6 +376,22 @@ CODE is the code that S causes to evaluate."
     (pie--eval (format ":load %s" (buffer-file-name buffer))
                (with-current-buffer buffer (buffer-string)))))
 
+(defun pie--repl-send-simple (cmd)
+  "Just send CMD to the REPL, without looking at th output."
+  (if-let (rb (pie--repl-buffer))
+      (with-current-buffer rb (comint-simple-send nil cmd))
+    (user-error "No active Pie REPL")))
+
+(defun pie-verbose-output ()
+  "Set verbose pie-hs output."
+  (interactive)
+  (pie--repl-send-simple ":verbose"))
+
+(defun pie-concise-output ()
+  "Set concise pie-hs output."
+  (interactive)
+  (pie--repl-send-simple ":concise"))
+
 (defun pie--sentinel (proc _event)
   "Prints a farewell when PROC ended."
   (let ((pb (process-buffer proc)))
@@ -407,11 +423,15 @@ CODE is the code that S causes to evaluate."
 (define-key pie-mode-map "\C-c\C-l" #'pie-load-buffer)
 (define-key pie-mode-map "\C-c\C-e" #'pie-eval-last-sexp)
 (define-key pie-mode-map "\C-x\C-e" #'pie-eval-last-sexp)
+(define-key pie-mode-map "\C-c\C-v" #'pie-verbose-output)
+(define-key pie-mode-map "\C-c\C-V" #'pie-concise-output)
 
-(define-key pie-repl-mode-map "\M-p" 'comint-previous-matching-input-from-input)
-(define-key pie-repl-mode-map "\M-n" 'comint-next-matching-input-from-input)
-(define-key pie-repl-mode-map "\C-cz" 'pie-back-to-buffer)
-(define-key pie-repl-mode-map "\C-c\C-z" 'pie-back-to-buffer)
+(define-key pie-repl-mode-map "\M-p" #'comint-previous-matching-input-from-input)
+(define-key pie-repl-mode-map "\M-n" #'comint-next-matching-input-from-input)
+(define-key pie-repl-mode-map "\C-cz" #'pie-back-to-buffer)
+(define-key pie-repl-mode-map "\C-c\C-z" #'pie-back-to-buffer)
+(define-key pie-repl-mode-map "\C-c\C-v" #'pie-verbose-output)
+(define-key pie-repl-mode-map "\C-c\C-V" #'pie-concise-output)
 
 ;;;###autoload
 (defun pie-run ()

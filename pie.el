@@ -1,4 +1,4 @@
-;;; pie.el --- Mode for editing Pie programs        -*- lexical-binding: t; -*-
+;;; pie.el --- Modes for Pie programming using pie-hs    -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021  jao
 
@@ -22,55 +22,6 @@
 
 ;; Simple syntax highlighting for Pie, and evaluation using the pie-hs
 ;; REPL.
-
-;; e ::= (the e e) Type annotation
-;; | x Variable reference
-;; | Atom Atom type
-;; | '⌈sym⌉ Atom literal
-;; | (Pair e e) Non-dependent pair type
-;; | (Σ ((x e)+) e) Dependent pair type
-;; | (cons e e) Pair constructor
-;; | (car e) First projection
-;; | (cdr e) Second projection
-;; | (→ e e+) Non-dependent function type
-;; | (Π ((x e)+) e) Dependent function type
-;; | (λ (x+) e) Functions
-;; | (e e+) Application
-;; | Nat Natural number type
-;; | zero Zero
-;; | (add1 e) Successor
-;; | ⌈n⌉ Natural number literal
-;; | (which-Nat e e e) Case operator on natural numbers
-;; | (iter-Nat e e e) Simply-typed iteration on natural numbers
-;; | (rec-Nat e e e) Simply-typed recursion on natural numbers
-;; | (ind-Nat e e e e) Induction on natural numbers
-;; | (List e) List type
-;; | nil Empty list
-;; | (:: e e) List expansion
-;; | (rec-List e e e) Simply-typed list recursion
-;; | (ind-List e e e e) Induction on lists
-;; | (Vec e e) Length-indexed vector type
-;; | vecnil Empty vector
-;; | (vec:: e e) Vector extension
-;; | (head e) Head of a vector
-;; | (tail e) Tail of a vector
-;; | (ind-Vec e e e e e) Induction on vectors
-;; | (= e e e) Equality type
-;; | (same e) Reﬂexivity of equality
-;; | (symm e) Symmetry of equality
-;; | (cong e e) Equality is a congruence
-;; | (replace e e e) Transportation along equality
-;; | (trans e e) Transitivity of equality
-;; | (ind-= e e e) Induction on equality
-;; | (Either e e) Sum type
-;; | (left e) First injection
-;; | (right e) Second injection
-;; | (ind-Either e e e e) Eliminator for sums
-;; | Trivial Unit type
-;; | sole Unit constructor
-;; | Absurd Empty type
-;; | (ind-Absurd e e) Eliminator for empty type (a.k.a. ex falso quodlibet)
-;; | U Universe
 
 ;;; Code:
 

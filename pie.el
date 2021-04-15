@@ -142,7 +142,7 @@
 	(map (make-sparse-keymap "Pie")))
     (set-keymap-parent smap lisp-mode-shared-map)
     (define-key smap [menu-bar pie] (cons "Pie" map))
-    ;; (define-key map [run-pie] '("Run Inferior Pie" . run-pie))
+    (define-key map [run-pie] '("Run Inferior Pie" . pie-run))
     (define-key map [uncomment-region]
       '("Uncomment Out Region" . (lambda (beg end)
                                    (interactive "r")
@@ -220,7 +220,10 @@ Commands:
   (cons '("^[^:]+\\(: .+\\)$" (1 'pie-annotation)) pie-font-lock-keywords))
 
 (define-derived-mode pie-output-mode pie-mode "pie-output"
-  "Mode to display pie-hs output."
+  "Mode to display pie-hs output.
+
+Commands:
+\\{pie-output-mode-map}"
   (setq-local font-lock-defaults '(pie--out-font-lock-keywords)))
 
 (defun pie--out-buffer ()
@@ -343,12 +346,14 @@ CODE is the code that S causes to evaluate."
 (defun pie-verbose-output ()
   "Set verbose pie-hs output."
   (interactive)
-  (pie--repl-send-simple ":verbose"))
+  (pie--repl-send-simple ":verbose")
+  (message "Pie set to verbose output"))
 
 (defun pie-concise-output ()
   "Set concise pie-hs output."
   (interactive)
-  (pie--repl-send-simple ":concise"))
+  (pie--repl-send-simple ":concise")
+  (message "Pie set to concise output"))
 
 (defun pie--sentinel (proc _event)
   "Prints a farewell when PROC ended."
@@ -360,7 +365,10 @@ CODE is the code that S causes to evaluate."
 
 ;;;###autoload
 (define-derived-mode pie-repl-mode comint-mode "Pie REPL"
-  "A very simple comint-based mode to run pie-hs."
+  "A very simple comint-based mode to run pie-hs.
+
+Commands:
+\\{pie-repl-mode-map}"
   (setq comint-prompt-read-only t
         comint-use-prompt-regexp t
         comint-prompt-regexp (regexp-quote "Π> ")
@@ -381,13 +389,13 @@ CODE is the code that S causes to evaluate."
 (define-key pie-mode-map "\C-c\C-e" #'pie-eval-last-sexp)
 (define-key pie-mode-map "\C-x\C-e" #'pie-eval-last-sexp)
 (define-key pie-mode-map "\C-c\C-v" #'pie-verbose-output)
-(define-key pie-mode-map "\C-c\C-V" #'pie-concise-output)
+(define-key pie-mode-map (kbd "C-c C-S-V") #'pie-concise-output)
 
 (define-key pie-repl-mode-map "\M-p" #'comint-previous-matching-input-from-input)
 (define-key pie-repl-mode-map "\M-n" #'comint-next-matching-input-from-input)
 (define-key pie-repl-mode-map "\C-c\C-z" #'pie-back-to-buffer)
 (define-key pie-repl-mode-map "\C-c\C-v" #'pie-verbose-output)
-(define-key pie-repl-mode-map "\C-c\C-V" #'pie-concise-output)
+(define-key pie-repl-mode-map (kbd "C-c C-S-V") #'pie-concise-output)
 
 (define-key pie-output-mode-map "\C-c\C-o" #'pie-back-to-buffer)
 

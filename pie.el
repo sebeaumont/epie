@@ -1,9 +1,14 @@
 ;;; pie.el --- Modes for Pie programming using pie-hs    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  jao
-
-;; Author: jao <mail@jao.io>
+;; Author: Jose A Ortega Ruiz <jao@gnu.org>
+;; Maintainer: Jose A Ortega Ruiz
 ;; Keywords: languages
+;; License: GPL-3.0-or-later
+;; Version: 0.1
+;; Package-Requires: ((emacs "26.1"))
+;; Homepage: https://codeberg.org/jao/epie
+
+;; Copyright (C) 2021  Jose A Ortega Ruiz
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,7 +26,9 @@
 ;;; Commentary:
 
 ;; Simple syntax highlighting for Pie, and evaluation using the pie-hs
-;; REPL.
+;; REPL.  After installing pie-hs
+;; (https://github.com/david-christiansen/pie-hs), try editing a .pie
+;; file, or invoking `pie-run'.
 
 ;;; Code:
 

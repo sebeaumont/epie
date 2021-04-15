@@ -206,14 +206,16 @@ Commands:
 (defvar pie--last-pie-buffer nil)
 
 (defvar pie--repl-buffer "*pie*")
-(defun pie--repl-buffer ()
-  "Grabs repl's buffer, checdock police."
-  (get-buffer pie--repl-buffer))
 
-(defun pie-pop-to-repl ()
-  "Pop to the active Pie REPL."
-  (interactive)
-  (pop-to-buffer (pie--repl-buffer)))
+(defun pie--repl-buffer ()
+  "Grabs repl's buffer, creating it with a running pie-hs if needed."
+  (with-current-buffer (get-buffer-create pie--repl-buffer)
+    (unless (get-buffer-process (current-buffer))
+      (make-comint "pie" pie-path)
+      (comint-simple-send nil ":verbose")
+      (unless (derived-mode-p 'pie-repl-mode)
+        (pie-repl-mode)))
+    (current-buffer)))
 
 (defvar pie--out-buffer "*pie-output*")
 (defvar pie--out-font-lock-keywords
@@ -405,9 +407,7 @@ Commands:
   (interactive)
   (when (derived-mode-p 'pie-mode)
     (setq pie--last-pie-buffer (current-buffer)))
-  (pop-to-buffer (make-comint "pie" pie-path))
-  (unless (derived-mode-p 'pie-repl-mode)
-    (pie-repl-mode)))
+  (pop-to-buffer (pie--repl-buffer)))
 
 (defvar company-global-modes)
 

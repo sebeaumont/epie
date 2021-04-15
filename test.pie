@@ -1,11 +1,64 @@
 #lang pie
 
-(the Atom 'foo)
+Atom
+(Pair Atom Atom)
 
-(claim mu Atom)
-(define mu 'an-atom)
+(car (the (Pair Atom Atom) (cons 'foo 'bar)))
 
-(claim a (-> Nat Nat))
-(define a (lambda (x) (add1 x)))
+(car (the (Pair (Pair Atom Atom) Atom)
+       (cons (cons 'aubergine 'courgette) 'tomato)))
 
-(a 3)
+(Pair (car (the (Pair U Atom) (cons Atom 'olive)))
+      (cdr (the (Pair Atom U) (cons 'oil Atom))))
+
+(claim one Nat)
+(define one (add1 zero))
+
+(claim TwoAtoms U)
+(define TwoAtoms (Pair Atom Atom))
+
+(claim vegetables TwoAtoms)
+(define vegetables (cons 'celery 'carrot))
+
+(which-Nat 4
+  'naught
+  (lambda (_) 'more))
+
+(claim + (-> Nat Nat Nat))
+(define +
+  (lambda (x y)
+    (iter-Nat x
+      y
+      (lambda (plus-1) (add1 plus-1)))))
+
+(claim gauss (-> Nat Nat))
+(define gauss
+  (lambda (n)
+    (rec-Nat n
+      0
+      (lambda (n-1 gauss-1) (+ (add1 n-1) gauss-1)))))
+
+(gauss 5)
+
+(claim Pear U)
+(define Pear (Pair Nat Nat))
+
+(claim Pear-maker U)
+(define Pear-maker (-> Nat Nat Pear))
+
+(claim elim-Pear (-> Pear Pear-maker Pear))
+(define elim-Pear
+  (lambda (pear maker) (maker (car pear) (cdr pear))))
+
+(elim-Pear (cons 3 17) (lambda (a d) (cons d a)))
+
+(claim add-pears (-> Pear Pear Pear))
+(define add-pears
+  (lambda (a-pear other-pear)
+    (elim-Pear a-pear
+               (lambda (pa pb)
+                 (elim-Pear other-pear
+                            (lambda (oa ob)
+                              (cons (+ pa pb) (+ oa ob))))))))
+
+(add-pears (cons 1 32) (cons 0 42))

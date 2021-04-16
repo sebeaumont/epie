@@ -219,7 +219,7 @@ Commands:
   (with-current-buffer (get-buffer-create pie--repl-buffer)
     (unless (get-buffer-process (current-buffer))
       (make-comint "pie" pie-path)
-      (comint-simple-send nil ":verbose")
+      (pie-verbose-output)
       (unless (derived-mode-p 'pie-repl-mode)
         (pie-repl-mode)))
     (current-buffer)))
@@ -296,9 +296,10 @@ Commands:
   (with-current-buffer buf
     (while (and (null comint-redirect-completed) (accept-process-output proc)))))
 
-(defun pie--send-command (cmd &optional code)
+(defun pie--send-command (cmd &optional code no-parse)
   "Sends CMD to the Pie REPL and collects the result.
-CODE is the evaluated code, when not directly given by CMD."
+CODE is the evaluated code, when not directly given by CMD.
+If NO-PARSE is non-nil, no attempt to parse the REPL's response is made."
   (when-let ((repl (pie--repl-buffer)))
     (let ((proc (get-buffer-process repl))
           (out (pie--out-buffer)))
@@ -307,7 +308,7 @@ CODE is the evaluated code, when not directly given by CMD."
         (erase-buffer)
         (comint-redirect-send-command-to-process cmd out proc nil t)
         (pie--parse-wait-output repl proc)
-        (pie--parse-cmd-output (or code cmd))
+        (unless no-parse (pie--parse-cmd-output (or code cmd)))
         (goto-char (point-min))
         (read-only-mode 1)))))
 
@@ -346,22 +347,16 @@ CODE is the code that S causes to evaluate."
     (pie--eval (format ":load %s" (buffer-file-name buffer))
                (with-current-buffer buffer (buffer-string)))))
 
-(defun pie--repl-send-simple (cmd)
-  "Just send CMD to the REPL, without looking at th output."
-  (if-let (rb (pie--repl-buffer))
-      (with-current-buffer rb (comint-simple-send nil cmd))
-    (user-error "No active Pie REPL")))
-
 (defun pie-verbose-output ()
   "Set verbose pie-hs output."
   (interactive)
-  (pie--repl-send-simple ":verbose")
+  (pie--send-command ":verbose" nil t)
   (message "Pie set to verbose output"))
 
 (defun pie-concise-output ()
   "Set concise pie-hs output."
   (interactive)
-  (pie--repl-send-simple ":concise")
+  (pie--send-command ":concise" nil t)
   (message "Pie set to concise output"))
 
 (defun pie--sentinel (proc _event)

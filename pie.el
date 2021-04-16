@@ -123,8 +123,8 @@
                           pie-builtin-eliminators)
                   t)
      (1 'pie-function))
-    (,(concat "\\<" (regexp-opt pie-builtin-types t) "\\>") . 'pie-type)
-    ("\\<[A-Z][A-Za-z]*\\>" . 'pie-type)
+    (,(concat "\\_<" (regexp-opt pie-builtin-types t) "\\_>") . 'pie-type)
+    ("\\_<[A-Z][A-Za-z]*\\_>" . 'pie-type)
     ("(\\(define\\)\\>[ \t]*\\(\\sw+\\)[ \t]+(lambda "
      (1 'pie-definition)
      (2 'pie-function))))

@@ -61,6 +61,14 @@
 (defface pie-annotation '((t :inherit font-lock-comment-face))
   "Face for pie-hs annotations.")
 
+(defcustom pie-path "pie"
+  "The path to your pie-hs compiled executable."
+  :type 'string)
+
+(defcustom pie-output-window-height 0.4
+  "Either a fraction or a number of lines to use for the output window."
+  :type '(number))
+
 
 ;; Mode
 
@@ -206,10 +214,6 @@ Commands:
 
 ;; Repl
 
-(defcustom pie-path "pie"
-  "The path to your pie-hs compiled executable."
-  :type 'string)
-
 (defvar pie--last-pie-buffer nil)
 
 (defvar pie--repl-buffer "*pie*")
@@ -242,11 +246,15 @@ Commands:
       (pie-output-mode)))
   (get-buffer pie--out-buffer))
 
+(defun pie--display-buffer-below-selected (buffer _alist)
+  "Helper function to display BUFFER below selected window."
+  (delete-other-windows-vertically)
+  (display-buffer-below-selected buffer
+                                 `((window-height . ,pie-output-window-height))))
+
 (add-to-list 'display-buffer-alist
              `(,(regexp-quote pie--out-buffer)
-               (display-buffer-below-selected)
-               (window-height . 0.33)
-               (window-min-height . 10)))
+               (pie--display-buffer-below-selected)))
 
 (defun pie-pop-to-output ()
   "Move to the pie-hs output buffer."

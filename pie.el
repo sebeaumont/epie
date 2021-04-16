@@ -172,7 +172,7 @@
   "Keymap for WhizzML mode.")
 
 (defconst pie--one-indent-forms
-  '(Pi Sigma which-Nat iter-Nat rec-Nat ind-Nat rec-List ind-List)
+  '(Pi Sigma which-Nat iter-Nat rec-Nat ind-Nat rec-List ind-List claim the)
   "Internal constant.")
 
 (defun pie--indent (&rest args)
@@ -339,6 +339,13 @@ CODE is the code that S causes to evaluate."
         (backward-sexp)
         (pie--eval (buffer-substring-no-properties (point) p))))))
 
+(defun pie-eval-current-sexp ()
+  "Sends to the Pie repl the top level expression around or before point."
+  (interactive)
+  (save-excursion
+    (end-of-defun)
+    (pie-eval-last-sexp)))
+
 ;; Needs more work: pie-hs doesn't like more than one form in a single line
 ;; so we'd need aggregating multiple evaluations
 ;; (defun pie-eval-region ()
@@ -400,6 +407,7 @@ Commands:
 (define-key pie-mode-map "\C-c\C-l" #'pie-load-buffer)
 (define-key pie-mode-map "\C-c\C-e" #'pie-eval-last-sexp)
 (define-key pie-mode-map "\C-x\C-e" #'pie-eval-last-sexp)
+(define-key pie-mode-map "\C-\M-x" #'pie-eval-current-sexp)
 (define-key pie-mode-map "\C-c\C-v" #'pie-verbose-output)
 (define-key pie-mode-map (kbd "C-c C-S-V") #'pie-concise-output)
 

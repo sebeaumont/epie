@@ -118,10 +118,10 @@
     ("'[a-zA-z-]+" . 'pie-atom)
     ("(\\(define\\|the\\|claim\\)\\>" (1 'pie-definition))
     (,(concat "(" (regexp-opt pie-syntax-forms t)) (1 'pie-builtin))
-    (,(regexp-opt (append pie-builtin-functions
-                          pie-builtin-constructors
-                          pie-builtin-eliminators)
-                  t)
+    (,(format "\\_<%s\\_>" (regexp-opt (append pie-builtin-functions
+                                               pie-builtin-constructors
+                                               pie-builtin-eliminators)
+                                       t))
      (1 'pie-function))
     (,(concat "\\_<" (regexp-opt pie-builtin-types t) "\\_>") . 'pie-type)
     ("\\_<[A-Z][A-Za-z]*\\_>" . 'pie-type)

@@ -172,7 +172,7 @@
   "Keymap for WhizzML mode.")
 
 (defconst pie--one-indent-forms
-  '(Pi Sigma which-Nat iter-Nat rec-Nat ind-Nat rec-List ind-List claim the)
+  '(Pi Sigma which-Nat iter-Nat rec-Nat ind-Nat ind-Vec ind-List rec-List claim the)
   "Internal constant.")
 
 (defun pie--indent (&rest args)
@@ -223,7 +223,6 @@ Commands:
   (with-current-buffer (get-buffer-create pie--repl-buffer)
     (unless (get-buffer-process (current-buffer))
       (make-comint "pie" pie-path)
-      (pie-verbose-output)
       (unless (derived-mode-p 'pie-repl-mode)
         (pie-repl-mode)))
     (current-buffer)))

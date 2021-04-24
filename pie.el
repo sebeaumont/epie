@@ -362,6 +362,7 @@ CODE is the code that S causes to evaluate."
   "Send the contents of a given BUFFER to the Pie repl, resetting it."
   (interactive)
   (let ((buffer (or buffer (current-buffer))))
+    (save-some-buffers nil (lambda () (eq (current-buffer) buffer)))
     (pie--eval (format ":load %s" (buffer-file-name buffer))
                (with-current-buffer buffer (buffer-string)))))
 

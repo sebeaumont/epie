@@ -307,7 +307,8 @@ Commands:
 (defun pie--parse-wait-output (buf proc)
   "Wait for output of PROC to cease in BUF."
   (with-current-buffer buf
-    (while (and (null comint-redirect-completed) (accept-process-output proc)))))
+    (while (and (null comint-redirect-completed) (process-live-p proc))
+       (accept-process-output))))
 
 (defun pie--send-command (cmd &optional code no-parse)
   "Sends CMD to the Pie REPL and collects the result.
@@ -394,9 +395,9 @@ CODE is the code that S causes to evaluate."
 
 Commands:
 \\{pie-repl-mode-map}"
-  (setq comint-prompt-read-only t
+  (setq comint-prompt-read-only nil
         comint-use-prompt-regexp t
-        comint-prompt-regexp "[^>]+> "
+        comint-prompt-regexp ".> "
         comint-input-ring-file-name
         (expand-file-name "~/.emacs.d/cache/pie.history")
         comint-input-ignoredups t

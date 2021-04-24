@@ -58,6 +58,9 @@
 (defface pie-function '((t :inherit font-lock-function-name-face))
   "Face for functions.")
 
+(defface pie-todo '((t :inherit warning))
+  "Face for TODO.")
+
 (defface pie-annotation '((t :inherit font-lock-comment-face))
   "Face for pie-hs annotations.")
 
@@ -115,6 +118,7 @@
 
 (defvar pie-font-lock-keywords
   `(("^#lang pie[ \t]*$" . font-lock-comment-face)
+    ("\\_<TODO\\_>" . 'pie-todo)
     ("'[a-zA-z-]+" . 'pie-atom)
     ("(\\(define\\|the\\|claim\\)\\>" (1 'pie-definition))
     (,(concat "(" (regexp-opt pie-syntax-forms t)) (1 'pie-builtin))

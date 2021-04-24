@@ -394,7 +394,7 @@ Commands:
 \\{pie-repl-mode-map}"
   (setq comint-prompt-read-only t
         comint-use-prompt-regexp t
-        comint-prompt-regexp (regexp-quote "Π> ")
+        comint-prompt-regexp "[^>]+> "
         comint-input-ring-file-name
         (expand-file-name "~/.emacs.d/cache/pie.history")
         comint-input-ignoredups t

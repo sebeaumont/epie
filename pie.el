@@ -49,11 +49,17 @@
 (defface pie-builtin '((t :inherit font-lock-builtin-face))
   "Face for built-ins.")
 
-(defface pie-type '((t :inherit italic))
+(defface pie-type '((t :inherit font-lock-type-face))
   "Face for type names.")
 
 (defface pie-atom '((t :inherit font-lock-keyword-face))
   "Face for atoms.")
+
+(defface pie-constructor '((t :inherit font-lock-constant-face))
+  "Face for constructors.")
+
+(defface pie-eliminator '((t :inherit font-lock-function-name-face))
+  "Face for eliminators.")
 
 (defface pie-function '((t :inherit font-lock-function-name-face))
   "Face for functions.")
@@ -105,37 +111,33 @@
     st))
 
 (defvar pie-syntax-forms
-  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define" "car" "cdr" "left" "right"))
+  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define"
+    "car" "cdr" "left" "right" "symm" "replace" "trans"))
 (defvar pie-builtin-types
   '("Atom" "Pair" "Nat" "List" "Vec" "Either" "Trivial" "Absurd" "U" "="))
 (defvar pie-builtin-constructors
-  '("cons" "zero" "add1" "nil" "::" "vecnil" "vec::" "sole"))
+  '("cons" "zero" "add1" "nil" "::" "vecnil" "vec::" "sole" "same"))
 (defvar pie-builtin-eliminators
   '("which-Nat" "iter-Nat" "rec-Nat" "ind-Nat" "rec-List" "ind-List"
-    "head" "tail" "ind-Vec" "ind-Either" "ind-Absurd"))
-(defvar pie-builtin-functions
-  '("same" "symm" "cong" "replace" "trans" "ind-="))
+    "head" "tail" "ind-Vec" "ind-Either" "ind-Absurd" "ind-=" "cong"))
 
 (defvar pie-font-lock-keywords
   `(("^#lang pie[ \t]*$" . font-lock-comment-face)
     ("\\_<TODO\\_>" . 'pie-todo)
     ("'[a-zA-z-]+" . 'pie-atom)
-    ("(\\(define\\|the\\|claim\\)\\>" (1 'pie-definition))
     (,(concat "(" (regexp-opt pie-syntax-forms t)) (1 'pie-builtin))
-    (,(format "\\_<%s\\_>" (regexp-opt (append pie-builtin-functions
-                                               pie-builtin-constructors
-                                               pie-builtin-eliminators)
-                                       t))
-     (1 'pie-function))
-    (,(concat "\\_<" (regexp-opt pie-builtin-types t) "\\_>") . 'pie-type)
+    (,(format "\\_<%s\\_>" (regexp-opt pie-builtin-constructors t))
+     (1 'pie-constructor))
+    (,(format "\\_<%s\\_>" (regexp-opt pie-builtin-eliminators t))
+     (1 'pie-eliminator))
+    (,(format "\\_<%s\\_>" (regexp-opt pie-builtin-types t)) . 'pie-type)
     ("\\_<[A-Z][A-Za-z]*\\_>" . 'pie-type)
     ("(\\(define\\)\\>[ \t]*\\(\\sw+\\)[ \t]+(lambda "
-     (1 'pie-definition)
+     (1 'pie-builtin)
      (2 'pie-function))))
 
 (defvar pie--static-completion-list
-  (sort (append pie-builtin-functions
-                pie-builtin-constructors
+  (sort (append pie-builtin-constructors
                 pie-builtin-eliminators
                 pie-syntax-forms
                 pie-builtin-types)

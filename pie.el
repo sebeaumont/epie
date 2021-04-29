@@ -111,15 +111,15 @@
     st))
 
 (defvar pie-syntax-forms
-  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define"
-    "car" "cdr" "left" "right" "symm" "replace" "trans"))
+  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define" "left" "right" "trans"))
 (defvar pie-builtin-types
   '("Atom" "Pair" "Nat" "List" "Vec" "Either" "Trivial" "Absurd" "U" "="))
 (defvar pie-builtin-constructors
   '("cons" "zero" "add1" "nil" "::" "vecnil" "vec::" "sole" "same"))
 (defvar pie-builtin-eliminators
-  '("which-Nat" "iter-Nat" "rec-Nat" "ind-Nat" "rec-List" "ind-List"
-    "head" "tail" "ind-Vec" "ind-Either" "ind-Absurd" "ind-=" "cong"))
+  '("car" "cdr" "which-Nat" "iter-Nat" "rec-Nat" "ind-Nat" "rec-List" "ind-List"
+    "head" "tail" "ind-Vec" "ind-Either" "ind-Absurd"
+    "ind-=" "cong" "replace" "symm"))
 
 (defvar pie-font-lock-keywords
   `(("^#lang pie[ \t]*$" . font-lock-comment-face)
@@ -178,7 +178,7 @@
   "Keymap for WhizzML mode.")
 
 (defconst pie--one-indent-forms
-  '(Pi Sigma which-Nat iter-Nat rec-Nat ind-Nat ind-Vec ind-List rec-List claim the)
+  (mapcar #'intern (append pie-syntax-forms pie-builtin-eliminators))
   "Internal constant.")
 
 (defun pie--indent (&rest args)
@@ -199,8 +199,8 @@ Commands:
    paragraph-separate paragraph-start
    paragraph-ignore-fill-prefix t
    fill-paragraph-function 'lisp-fill-paragraph
-   indent-line-function 'lisp-indent-line
-   lisp-indent-function 'pie--indent
+   indent-line-function #'lisp-indent-line
+   lisp-indent-function #'pie--indent
    parse-sexp-ignore-comments t
    comment-start ";"
    comment-add 1

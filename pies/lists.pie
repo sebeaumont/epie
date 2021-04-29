@@ -1,0 +1,77 @@
+#lang pie
+
+(claim rugbrod (List Atom))
+(define rugbrod (:: 'rye-flour
+                    (:: 'rye-kernels
+                        (:: 'water
+                            (:: 'sourdough
+                                (:: 'salt nil))))))
+
+(rec-List rugbrod
+  0
+  (lambda (_e _es n) (add1 n)))
+
+(claim length (Pi ((T U)) (-> (List T) Nat)))
+(define length
+  (lambda (T)
+    (lambda (l)
+      (rec-List l
+        0
+        (lambda (_e _es n) (add1 n))))))
+
+((length Atom) (:: 'a (:: 'b (:: 'c nil))))
+
+(claim length-Atom (-> (List Atom) Nat))
+(define length-Atom (length Atom))
+((length Atom) (:: 'a (:: 'b (:: 'c nil))))
+
+(claim step-append (Pi ((E U)) (-> E (List E) (List E) (List E))))
+(define step-append (lambda (E) (lambda (e _ es) (:: e es))))
+
+(claim append (Pi ((T U)) (-> (List T) (List T) (List T))))
+(define append
+  (lambda (T)
+    (lambda (l0 l1)
+      (rec-List l0
+        l1
+        (step-append T)))))
+
+(append Atom (:: 'a (:: 'b nil)) (:: 'c (:: 'd (:: 'e nil))))
+
+(claim snoc (Pi ((T U)) (-> (List T) T (List T))))
+(define snoc
+  (lambda (T)
+    (lambda (l e)
+      (rec-List l
+        (:: e nil)
+        (step-append T)))))
+
+(snoc Atom (:: 'a (:: 'b (:: 'd nil))) 'c)
+
+(claim reverse (Pi ((T U)) (-> (List T) (List T))))
+(define reverse
+  (lambda (T l)
+    (rec-List l (the (List T) nil) (lambda (e es res) (snoc T res e)))))
+
+(reverse Atom (snoc Atom (:: 'a (:: 'b (:: 'd nil))) 'c))
+
+(head (the (Vec Nat 1) (vec:: 3 vecnil)))
+(tail (the (Vec Nat 1) (vec:: 3 vecnil)))
+
+(claim first-of-one (Pi ((E U)) (-> (Vec E 1) E)))
+(define first-of-one (lambda (E) (lambda (v) (head v))))
+
+(first-of-one Nat (vec:: 3 vecnil))
+
+(claim fst (Pi ((E U) (n Nat)) (-> (Vec E (add1 n)) E)))
+(define fst (lambda (E n v) (head v)))
+
+(fst Atom 2 (vec:: 'a (vec:: 'c (vec:: 'd vecnil))))
+
+(-> Atom Nat)
+(Pi ((x Atom)) Nat)
+
+(claim rest (Pi ((E U) (n Nat) (v (Vec E (add1 n)))) (Vec E n)))
+(define rest (lambda (E _n v) (tail v)))
+
+(rest Atom 2 (vec:: 'a (vec:: 'c (vec:: 'd vecnil))))

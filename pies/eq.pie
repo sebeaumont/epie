@@ -1,0 +1,77 @@
+#lang pie
+
+(claim + (-> Nat Nat Nat))
+(define +
+  (lambda (x y)
+    (iter-Nat x
+      y
+      (lambda (y+x-1) (add1 y+x-1)))))
+
+(= Nat 3 (add1 (add1 (add1 zero))))
+(= Atom 'a 'b)
+
+(the (= Atom 'a 'a) (same 'a))
+
+(claim +1=add1 (Pi ((n Nat)) (= Nat (+ 1 n) (add1 n))))
+(define +1=add1 (lambda (n) (same (add1 n))))
+
+(claim incr (-> Nat Nat))
+(define incr (lambda (n) (iter-Nat n 1 (+ 1))))
+
+(claim incr=add1 (Pi ((n Nat)) (= Nat (incr n) (add1 n))))
+(define incr=add1
+  (lambda (n)
+    (ind-Nat n
+      (lambda (n) (= Nat (incr n) (add1 n)))
+      (same 1)
+      (lambda (k p) ;; p is a (= Nat (incr k) (add1 k))
+        (replace p
+          (lambda (n) (= Nat (add1 (incr k)) (add1 n)))
+          (same (add1 (incr k))))))))
+
+(incr=add1 3)
+
+(claim double (-> Nat Nat))
+(define double
+  (lambda (n)
+    (iter-Nat n
+      zero
+      (+ 2))))
+
+(double 3)
+
+(claim twice (-> Nat Nat))
+(define twice (lambda (n) (+ n n)))
+
+(claim mot-add1+=+add1 (Pi ((j Nat) (n Nat)) U))
+(define mot-add1+=+add1
+  (lambda (j n) (= Nat (add1 (+ n j)) (+ n (add1 j)))))
+
+(claim add1+=+add1 (Pi ((n Nat) (j Nat)) (= Nat (add1 (+ n j)) (+ n (add1 j)))))
+(define add1+=+add1
+  (lambda (n j)
+    (ind-Nat n
+      (mot-add1+=+add1 j)
+      (same (add1 j))
+      (lambda (n-1 p-1)
+        (cong p-1 (+ 1))))))
+
+(claim twice=double (Pi ((n Nat)) (= Nat (twice n) (double n))))
+
+(claim mot-twice=double (Pi ((n Nat)) U))
+(define mot-twice=double (lambda (n) (= Nat (twice n) (double n))))
+
+(claim step-twice=double
+  (Pi ((n-1 Nat)) (-> (mot-twice=double n-1) (mot-twice=double (add1 n-1)))))
+
+(define step-twice=double
+  (lambda (n-1)
+    (lambda (t-d-1)
+      TODO)))
+
+(define twice=double
+  (lambda (n)
+    (ind-Nat n
+      mot-twice=double
+      (same zero)
+      step-twice=double)))

@@ -62,3 +62,28 @@ Atom
                               (cons (+ pa pb) (+ oa ob))))))))
 
 (add-pears (cons 1 32) (cons 0 42))
+
+(claim flip
+  (Pi ((A U)
+       (B U))
+    (-> (Pair A B) (Pair B A))))
+(define flip
+  (lambda (A B) (lambda (p) (cons (cdr p) (car p)))))
+
+((flip Nat Nat) (cons 1 2))
+((flip Atom Nat) (cons 'mu 42))
+
+(claim flip-Nats (-> (Pair Nat Nat) (Pair Nat Nat)))
+(define flip-Nats (flip Nat Nat))
+(flip-Nats (cons 9 0))
+
+(claim elim-Pair
+  (Pi ((A U)
+       (B U)
+       (X U))
+    (-> (Pair A B) (-> A B X) X)))
+
+(define elim-Pair
+  (lambda (A B X) (lambda (p f) (f (car p) (cdr p)))))
+
+(elim-Pair Nat Atom Atom (cons 3 'pie) (lambda (_ k) k))

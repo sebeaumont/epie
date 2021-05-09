@@ -111,11 +111,12 @@
     st))
 
 (defvar pie-syntax-forms
-  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define" "left" "right" "trans"))
+  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define" "trans"))
 (defvar pie-builtin-types
   '("Atom" "Pair" "Nat" "List" "Vec" "Either" "Trivial" "Absurd" "U" "="))
 (defvar pie-builtin-constructors
-  '("cons" "zero" "add1" "nil" "::" "vecnil" "vec::" "sole" "same"))
+  '("cons" "zero" "add1" "nil" "::" "vecnil" "vec::" "sole" "same"
+    "left" "right"))
 (defvar pie-builtin-eliminators
   '("car" "cdr" "which-Nat" "iter-Nat" "rec-Nat" "ind-Nat" "rec-List" "ind-List"
     "head" "tail" "ind-Vec" "ind-Either" "ind-Absurd"

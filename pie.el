@@ -438,12 +438,6 @@ Commands:
     (setq pie--last-pie-buffer (current-buffer)))
   (pop-to-buffer (pie--repl-buffer)))
 
-(defvar company-global-modes)
-
-(with-eval-after-load "company"
-  (when (listp company-global-modes)
-    (add-to-list 'company-global-modes 'pie-repl-mode)))
-
 
 (provide 'pie)
 ;;; pie.el ends here

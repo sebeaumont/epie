@@ -179,14 +179,17 @@
   "Keymap for WhizzML mode.")
 
 (defconst pie--one-indent-forms
-  (mapcar #'intern (append pie-syntax-forms pie-builtin-eliminators))
+  (append (mapcar (lambda (s) (cons (intern s) 1))
+                  (remove "ind-Vec" (append pie-syntax-forms
+                                            pie-builtin-eliminators)))
+          '((ind-Vec . 2)))
   "Internal constant.")
 
 (defun pie--indent (&rest args)
   "Indenting function, based on Lisp's indent function called with ARGS."
-  (dolist (f pie--one-indent-forms) (put f 'lisp-indent-function 1))
+  (dolist (f pie--one-indent-forms) (put (car f) 'lisp-indent-function (cdr f)))
   (prog1 (apply #'lisp-indent-function args)
-    (dolist (f pie--one-indent-forms) (put f 'lisp-indent-function nil))))
+    (dolist (f pie--one-indent-forms) (put (car f) 'lisp-indent-function nil))))
 
 ;;;###autoload
 (define-derived-mode pie-mode prog-mode "Pie"

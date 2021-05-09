@@ -312,7 +312,7 @@ Commands:
   "Wait for output of PROC to cease in BUF."
   (with-current-buffer buf
     (while (and (null comint-redirect-completed) (process-live-p proc))
-       (accept-process-output))))
+      (accept-process-output))))
 
 (defun pie--send-command (cmd &optional code no-parse)
   "Sends CMD to the Pie REPL and collects the result.

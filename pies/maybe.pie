@@ -1,0 +1,45 @@
+#lang pie
+
+(claim Maybe (-> U U))
+
+(define Maybe
+  (lambda (E) (Either E Trivial)))
+
+(claim nothing (Pi ((E U)) (Maybe E)))
+(define nothing (lambda (_) (right sole)))
+
+(claim just (Pi ((E U)) (-> E (Maybe E))))
+(define just (lambda (E e) (left e)))
+
+(claim maybe-head (Pi ((E U)) (-> (List E) (Maybe E))))
+(define maybe-head
+  (lambda (E es)
+    (ind-List es
+      (lambda (_) (Maybe E))
+      (nothing E)
+      (lambda (e _  _) (just E e)))))
+
+(maybe-head Atom nil)
+(maybe-head Atom (:: 'a (:: 'b (:: 'c nil))))
+
+(claim maybe-tail (Pi ((E U)) (-> (List E) (Maybe (List E)))))
+(define maybe-tail
+  (lambda (E es)
+    (rec-List es
+      (nothing (List E))
+      (lambda (_ tl _) (just (List E) tl)))))
+
+(maybe-tail Nat (:: 1 nil))
+(maybe-tail Nat nil)
+
+(claim list-ref (Pi ((E U)) (-> Nat (List E) (Maybe E))))
+(define list-ref
+  (lambda (E n)
+    (rec-Nat n
+      (maybe-head E)
+      (lambda (n-1 ref-1)
+        (lambda (es)
+          (ind-Either (maybe-tail E es)
+            (lambda (_) (Maybe E))
+            ref-1
+            (lambda (_) (nothing E))))))))

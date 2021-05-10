@@ -1,0 +1,113 @@
+#lang pie
+
+(claim list->vec
+  (Pi ((E U))
+    (-> (List E) (Sigma ((l Nat)) (Vec E l)))))
+
+(claim step-list->vec
+  (Pi ((E U))
+    (-> E (List E)
+        (Sigma ((l Nat)) (Vec E l))
+        (Sigma ((l Nat)) (Vec E l)))))
+
+(define step-list->vec
+  (lambda (E)
+    (lambda (e _ v-1)
+      (cons (add1 (car v-1))
+            (vec:: e (cdr v-1))))))
+
+(define list->vec
+  (lambda (E)
+    (lambda (es)
+      (ind-List es
+        (lambda (es) (Sigma ((l Nat)) (Vec E l)))
+        (cons zero vecnil)
+        (step-list->vec E)))))
+
+(cdr (list->vec Atom (:: 'a (:: 'b nil))))
+
+(claim replicate
+  (Pi ((E U) (l Nat)) (-> E (Vec E l))))
+
+(define replicate
+  (lambda (E l e)
+    (ind-Nat l
+      (lambda (n) (Vec E n))
+      vecnil
+      (lambda (l-1 v-1) (vec:: e v-1)))))
+
+(replicate Atom 5 'a)
+
+(claim + (-> Nat Nat Nat))
+(define +
+  (lambda (x y)
+    (iter-Nat x
+      y
+      (lambda (y+x-1) (add1 y+x-1)))))
+
+(claim vec-append
+  (Pi ((E U) (i Nat) (j Nat)) (-> (Vec E i) (Vec E j) (Vec E (+ i j)))))
+
+;; (claim mot-vec-append
+;;   (Pi ((E U) (j Nat) (i Nat)) (-> (Vec E i) U)))
+
+;; (define mot-vec-append (lambda (E k j _v) (Vec E (+ k j))))
+
+;; (claim step-vec-append
+;;   (Pi ((E U) (k Nat) (h E) (t (Vec E k)))
+;;     (-> (mot-vec-append E k t)
+;;       (mot-vec-append E (add1 k) (vec:: h t)))))
+
+;; (define step-vec-append
+;;   (lambda (E n h _ t) (vec:: h t)))
+
+(define vec-append
+  (lambda (E i j)
+    (lambda (vi vj)
+      (ind-Vec i vi
+        (lambda (i _) (Vec E (+ i j)))
+        vj
+        (lambda (_ vi-head vi-tail res-1) (vec:: vi-head res-1))))))
+
+(claim three-vector (Vec Atom 3))
+(define three-vector
+  (vec-append Atom 1 2 (vec:: 'foo vecnil) (vec:: 'bar (vec:: 'baz vecnil))))
+
+(claim mot-vec->list
+  (Pi ((E U) (l Nat)) (-> (Vec E l) U)))
+
+(define mot-vec->list
+  (lambda (E _l _v) (List E)))
+
+(claim step-vec->list
+  (Pi ((E U) (l-1 Nat) (e E) (es (Vec E l-1)))
+    (-> (mot-vec->list E l-1 es)
+      (mot-vec->list E (add1 l-1) (vec:: e es)))))
+
+(define step-vec->list
+  (lambda (E l-1 e es les) (:: e les)))
+
+(claim vec->list (Pi ((E U) (l Nat)) (-> (Vec E l) (List E))))
+
+(define vec->list
+  (lambda (E l)
+    (lambda (v)
+      (ind-Vec l v
+        (mot-vec->list E)
+        nil
+        (step-vec->list E)))))
+
+(vec->list Atom 3 three-vector)
+
+(claim length (Pi ((E U)) (-> (List E) Nat)))
+
+(define length
+  (lambda (E)
+    (lambda (l)
+      (rec-List l
+        0
+        (lambda (_ _ n-1) (add1 n-1))))))
+
+;; (claim list->vec->list=
+;;   (Pi ((E U) (es (List E)))
+;;     (= (List E) es (vec->list E (length E es) (cdr (list->vec E es))))))

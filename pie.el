@@ -84,7 +84,7 @@
 (defvar pie-mode-syntax-table
   (let ((st (make-syntax-table))
         (i (1+ ?9)))
-    ;; Symbol constituents (FIXME: we ignore chars outside ascii)
+    ;; Symbol constituents (FIXME: we ignore chars outside ascii) BAH!
     (while (< i ?A)
       (modify-syntax-entry i "_   " st)
       (setq i (1+ i)))
@@ -94,6 +94,12 @@
       (setq i (1+ i)))
 
     (modify-syntax-entry ?- "_   " st)
+
+    ;; this probably isn't what I want
+    ;; (modify-syntax-entry ?λ ".   " st)
+    ;; (modify-syntax-entry ?→ ".   " st)
+    ;; (modify-syntax-entry ?Π ".   " st)
+    ;; (modify-syntax-entry ?Σ ".   " st)
 
     ;; Whitespace
     (modify-syntax-entry ?\t "    " st)
@@ -108,10 +114,11 @@
     (modify-syntax-entry ?\; "<"    st)
     (modify-syntax-entry ?\" "\"   " st)
     (modify-syntax-entry ?' "'   " st)
+    
     st))
 
 (defvar pie-syntax-forms
-  '("Pi" "Sigma" "lambda" "->" "the" "claim" "define" "trans"))
+  '("Pi" "Π" "Sigma" "Σ" "lambda" "λ" "->" "→" "the" "claim" "define" "trans"))
 (defvar pie-builtin-types
   '("Atom" "Pair" "Nat" "List" "Vec" "Either" "Trivial" "Absurd" "U" "="))
 (defvar pie-builtin-constructors

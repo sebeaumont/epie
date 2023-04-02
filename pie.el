@@ -84,7 +84,7 @@
 (defvar pie-mode-syntax-table
   (let ((st (make-syntax-table))
         (i (1+ ?9)))
-    ;; Symbol constituents (FIXME: we ignore chars outside ascii) BAH!
+    ;; Symbol constituents (FIXME: we ignore chars outside ascii)
     (while (< i ?A)
       (modify-syntax-entry i "_   " st)
       (setq i (1+ i)))
